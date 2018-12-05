@@ -1,0 +1,22 @@
+//code for 7-bit shift register
+module shiftReg(reset, dataIn, buffer, clk, dataOut);
+
+  input [6:0] reset;
+  input dataIn, buffer, clk;
+  output reg [6:0] dataOut;
+  
+  //functionality code
+  always @(posedge buffer, posedge clk)
+    if(buffer)
+      dataOut <= dataOut;
+    else begin
+      dataOut[0] <= dataOut[1];
+      dataOut[1] <= dataOut[2];
+      dataOut[2] <= dataOut[3];
+      dataOut[3] <= dataOut[4];
+      dataOut[4] <= dataOut[5];
+      dataOut[5] <= dataOut[6];
+      dataOut[6] <= dataIn;
+    end
+  
+endmodule
