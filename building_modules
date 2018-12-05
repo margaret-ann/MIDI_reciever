@@ -1,15 +1,14 @@
-//code for 7-bit shift register
-module shiftReg(reset, dataIn, buffer, clk, dataOut);
+//code for 7-bit shift register using DFF
+module shiftReg(dataOut, dataIn, muxIn, clk);
 
-  input [6:0] reset;
-  input dataIn, buffer, clk;
+  input dataIn, muxIn, clk;
   output reg [6:0] dataOut;
   
   //functionality code
-  always @(posedge buffer, posedge clk)
-    if(buffer)
+  always @(posedge muxIn, posedge clk)
+    if(muxIn) //muxIn=1: buffer DFF output to input
       dataOut <= dataOut;
-    else begin
+    else begin //muxIn=0: shift
       dataOut[0] <= dataOut[1];
       dataOut[1] <= dataOut[2];
       dataOut[2] <= dataOut[3];
@@ -20,3 +19,55 @@ module shiftReg(reset, dataIn, buffer, clk, dataOut);
     end
   
 endmodule
+
+//Testbench used to test ShiftReg
+/*module SR_test;
+
+  reg dataIn, muxIn, clk;
+  wire [6:0] dataOut;
+  
+  shiftReg sr_block (dataOut, dataIn, muxIn, clk);
+  
+  initial begin
+    
+    $dumpfile("shiftReg.vcd");
+    $dumpvars(0,SR_test);
+
+	//fill reg with ones
+    dataIn = 1;
+    muxIn = 0;
+    clk=0; # 1;
+    clk=1; # 1;
+    clk=0; # 1;
+    clk=1; # 1;
+    clk=0; # 1;
+    clk=1; # 1;
+    clk=0; # 1;
+    clk=1; # 1;
+    clk=0; # 1;
+    clk=1; # 1;
+    clk=0; # 1;
+    clk=1; # 1;
+    clk=0; # 1;
+    clk=1; # 1;
+    
+    //shift in zero
+    dataIn=0;
+    clk=0; # 1;
+    clk=1; # 1;
+    
+    //shift in one
+    dataIn=1;
+    clk=0; # 1;
+    clk=1; # 1;
+    
+    //now buffer
+    muxIn=1;
+    clk=0; # 1;
+    clk=1; # 1;
+    clk=0; # 1;
+    
+    $finish;
+  end
+  
+endmodule*/
