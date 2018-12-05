@@ -1,4 +1,4 @@
-//code for 7-bit shift register using DFF
+//code for 7-bit shift register
 module shiftReg(dataOut, dataIn, muxIn, clk);
 
   input dataIn, muxIn, clk;
@@ -71,3 +71,17 @@ endmodule
   end
   
 endmodule*/
+
+//code for D Flip Flop with enable
+module DFF(data0, data1, clk, enable, dataOut);
+
+  input data0, data1, clk, enable;
+  output reg dataOut;
+  
+  always @(posedge clk)
+    if(enable) //fill DFF with mux input 1
+      dataOut <= data1;
+  	else //fill DFF with mux input 0
+      dataOut <= data0;
+      
+endmodule
