@@ -67,6 +67,47 @@ module count7(clk, reset, outBits);
   
 endmodule
 
+//TEST COUNTERS
+/*module counter_test;
+
+  reg clk, data, reset;
+  wire [1:0] dataOut;
+  
+  countN count_block (clk, reset, dataOut);
+  
+  initial begin
+    
+    $dumpfile("countN.vcd");
+    $dumpvars(0,counter_test);
+
+	//fill reg with ones
+    reset=1;
+    clk=0; # 1;
+    clk=1; # 1;
+    clk=0; # 1;
+    clk=1; # 1;
+    
+    reset=0;
+    clk=0; # 1;
+    clk=1; # 1;
+    clk=0; # 1;
+    clk=1; # 1;
+    clk=0; # 1;
+    clk=1; # 1;
+    clk=0; # 1;
+    clk=1; # 1;
+    clk=0; # 1;
+    clk=1; # 1;
+    clk=0; # 1;
+    clk=1; # 1;
+    clk=0; # 1;
+    clk=1; # 1;
+    
+    $finish;
+  end
+  
+endmodule*/
+
 
 //code for 7-bit shift register
 module shiftReg(dataOut, dataIn, muxIn, clk);
