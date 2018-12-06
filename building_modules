@@ -238,21 +238,22 @@ module bytecount(clk_128, in, regcntrl, ledcntrl, r);
   count3 countie(in, reset, cnt);
 endmodule
 
+//there may still be a bug with the bit counter being too large (change to 7 if short), check this once hook up to LEDs
 module bitcount(clk_128, in, bytcntrl, reset, r);
   input wire in, clk_128, r;
   output wire bytcntrl, reset;
   wire [3:0] cnt;
-  reg bitreg;
+  reg bitreg, resetreg;
   wire bitregin;
   
   assign reset = (cnt[3]|bitreg)|r;
   assign bytcntrl = (~bitregin & bitreg);
   
   mux muxie(1'b0, in, reset, bitregin);
-  count4 countee(clk_128, reset, cnt);
+  count4 countee(clk_128, resetreg, cnt);
   
   always@(posedge clk_128) begin
     bitreg <= bitregin;  
+    resetreg <= reset;
   end
   
-endmodule
