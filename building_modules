@@ -2,7 +2,7 @@
 module count3(clk, reset, outBits);
 
   parameter n = 3;
-  input wire clk, reset, not_clk;
+  input wire clk, reset;
   output wire [n-1:0] outBits;
   wire [n-1:0] dataWire;
    
@@ -25,7 +25,7 @@ endmodule
 module count4(clk, reset, outBits);
 
   parameter n = 4;
-  input wire clk, reset, not_clk;
+  input wire clk, reset;
   output wire [n-1:0] outBits;
   wire [n-1:0] dataWire;
    
@@ -48,7 +48,7 @@ endmodule
 module count7(clk, reset, outBits);
 
   parameter n = 7;
-  input wire clk, reset, not_clk;
+  input wire clk, reset;
   output wire [n-1:0] outBits;
   wire [n-1:0] dataWire;
    
