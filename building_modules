@@ -184,16 +184,16 @@ endmodule
 endmodule*/
 
 //code for D Flip Flop with enable
-module DFF(data0, data1, clk, enable, dataOut);
+module dff(data, clk, reset, dataOut);
 
-  input data0, data1, clk, enable;
+  input data, clk, reset;
   output reg dataOut;
   
-  always @(posedge clk)
-    if(enable) //fill DFF with mux input 1
-      dataOut <= data1;
-  	else //fill DFF with mux input 0
-      dataOut <= data0;
+  always @(posedge clk, posedge reset)
+    if(reset) //mux 0 = reset
+      dataOut <= 1'b0;
+  	else //mux 1 = pass data to dff 
+      dataOut <= data;
       
 endmodule
 
