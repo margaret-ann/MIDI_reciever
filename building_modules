@@ -101,6 +101,20 @@ endmodule
 
 
 
+module device(in, clk, led);
+  input wire in, clk;
+  output wire [6:0] led, preled;
+  wire clk_128, wire1, in_star, bytcntrl, regcntrl, regmuxin, ledcntrl;
+  
+  //sampler i(in, wire1, in_star, clk_128, clk);
+  bitcount b(clk_128, in_star, bytcntrl, wire1);
+  bytecount B(clk_128, bytcntrl, regcntrl, ledcntrl);
+  assign regmuxin = regcntrl|wire1;
+  shiftReg s(preled, in_star, regmuxin, clk_128);
+  mux7 m(7'b0000000, preled, ledcntrl, led);
+  
+endmodule
+
 module bytecount(clk_128, in, regcntrl, ledcntrl);
   input wire in, clk_128;
   output wire regcntrl, ledcntrl;
