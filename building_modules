@@ -176,7 +176,7 @@ module device(in, clk, led);
   output wire [6:0] led, preled;
   wire clk_128, wire1, in_star, bytcntrl, regcntrl, regmuxin, ledcntrl;
   
-  //sampler i(in, wire1, in_star, clk_128, clk);
+  sampler i(in, wire1, in_star, clk_128, clk);
   bitcount b(clk_128, in_star, bytcntrl, wire1);
   bytecount B(clk_128, bytcntrl, regcntrl, ledcntrl);
   assign regmuxin = regcntrl|wire1;
@@ -193,7 +193,7 @@ module bytecount(clk_128, in, regcntrl, ledcntrl);
   assign reset = (~cnt[0]&cnt[1]&cnt[2]);
   assign ledcntrl = (~cnt[2]&cnt[1]);
   assign regcntrl = (~cnt[1]|cnt[0]|cnt[2]);
-  //3cnt countie(in, reset, cnt);
+  count4 countie(in, reset, cnt);
   
 endmodule
 
@@ -208,7 +208,7 @@ module bitcount(clk_128, in, bytcntrl, reset);
   assign bytcntrl = (~bitregin & bitreg);
   
   mux muxie(1'b0, in, reset, bitregin);
-  //4cnt countee(in, reset, cnt);
+  count4 countee(clk_128, reset, cnt);
   
   always@(posedge clk_128) begin
     bitreg <= bitregin;  
