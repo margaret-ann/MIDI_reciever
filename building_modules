@@ -1,8 +1,7 @@
-//code for code for n-bit counter
-//remember to change parameter to number bits!!
-module countN(clk, reset, outBits);
+//THREE BIT COUNTER
+module count3(clk, reset, outBits);
 
-  parameter n = 8;
+  parameter n = 3;
   input wire clk, reset, not_clk;
   output wire [n-1:0] outBits;
   wire [n-1:0] dataWire;
@@ -21,6 +20,53 @@ module countN(clk, reset, outBits);
   end
   
 endmodule
+
+//FOUR BIT COUNTER
+module count4(clk, reset, outBits);
+
+  parameter n = 4;
+  input wire clk, reset, not_clk;
+  output wire [n-1:0] outBits;
+  wire [n-1:0] dataWire;
+   
+  //bring in some modules
+  //not(clk, clk);
+  dff DFF(dataWire[0], clk, reset, outBits[0]);
+  //first FF, directly clked
+  not(dataWire[0], outBits[0]); //set input to ~Q
+  
+  genvar i;
+  for(i=1; i<n; i=i+1) begin
+    dff DFF(dataWire[i], ~outBits[i-1], reset, outBits[i]);
+    //build subsequent FFs
+    not(dataWire[i], outBits[i]);
+  end
+  
+endmodule
+
+//SEVEN BIT COUNTER
+module count7(clk, reset, outBits);
+
+  parameter n = 7;
+  input wire clk, reset, not_clk;
+  output wire [n-1:0] outBits;
+  wire [n-1:0] dataWire;
+   
+  //bring in some modules
+  //not(clk, clk);
+  dff DFF(dataWire[0], clk, reset, outBits[0]);
+  //first FF, directly clked
+  not(dataWire[0], outBits[0]); //set input to ~Q
+  
+  genvar i;
+  for(i=1; i<n; i=i+1) begin
+    dff DFF(dataWire[i], ~outBits[i-1], reset, outBits[i]);
+    //build subsequent FFs
+    not(dataWire[i], outBits[i]);
+  end
+  
+endmodule
+
 
 //code for 7-bit shift register
 module shiftReg(dataOut, dataIn, muxIn, clk);
