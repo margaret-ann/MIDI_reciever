@@ -226,16 +226,16 @@ module device(in, clk, led);
   
 endmodule
 
-module bytecount(clk_128, in, regcntrl, ledcntrl);
-  input wire in, clk_128;
+//TESTED AND APPROVED
+module bytecount(clk_128, in, regcntrl, ledcntrl, r);
+  input wire in, clk_128, r;
   output wire regcntrl, ledcntrl;
   wire reset;
   wire [2:0] cnt;
-  assign reset = (~cnt[0]&cnt[1]&cnt[2]);
+  assign reset = (~cnt[0]&cnt[1]&cnt[2])|r;
   assign ledcntrl = (~cnt[2]&cnt[1]);
   assign regcntrl = (~cnt[1]|cnt[0]|cnt[2]);
-  count4 countie(in, reset, cnt);
-  
+  count3 countie(in, reset, cnt);
 endmodule
 
 module bitcount(clk_128, in, bytcntrl, reset);
