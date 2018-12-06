@@ -89,7 +89,7 @@ endmodule
 module fa (a,b,ci,s,co);
   input wire a,b,ci;
   output wire s, co;
-  co = ((a&b)|(a&ci)|(b&ci));
+  assign co = ((a&b)|(a&ci)|(b&ci));
   assign s = (a+b+ci)%2;
 endmodule
 
@@ -104,14 +104,15 @@ module fa3 (a,b,ci,s,co);
   fa add3(a[2], b[2], c[1], s[2], co);
 endmodule
 
-module fa6 (a,b,ci,s,co);
-  input wire [5:0] a, b;
+module fa7 (a,b,ci,s,co);
+  input wire [6:0] a, b;
   input wire ci;
-  output wire [5:0] s;
+  output wire [6:0] s;
   output wire co; 
-  wire c;
-  fa3 add1(a[2:0], b[2:0], ci, s[2:0], c);
-  fa3 add2(a[5:3], b[5:3], c, s[5:3], co);
+  wire [1:0] c;
+  fa3 add1(a[2:0], b[2:0], ci, s[2:0], c[0]);
+  fa3 add2(a[5:3], b[5:3], c[0], s[5:3], c[1]);
+  fa add3(a[6], b[6], c[1] , s[6], co);
 endmodule
 
 module mux(a, b, s, o);
@@ -127,23 +128,22 @@ module mux3 (a, b, s, o);
   assign o = s ? b : a;
 endmodule
 
-module mux6 (a, b, s, o);
-  output wire [5:0] o;
-  input wire [5:0] a, b; // a for 0 and b for 1
+module mux7 (a, b, s, o);
+  output wire [6:0] o;
+  input wire [6:0] a, b; // a for 0 and b for 1
   input wire s;  
   assign o = s ? b : a;
 endmodule
-/*
+
 module device(in,clk_128,wire1);
   input wire in, clk_128, wire1;
-  wire bytedetin
+  wire bytedetin;
   reg bytedet, timing;
   reg [6:0] data;
   reg [2:0] bitcount, bytecount;
   mux myboy(1'b0, timing, wire1, bytedetin);
-  always@(posedge clk_128)
+  always@(posedge clk_128) begin
     timing <= in;
     bytedet <= bytedetin;
   end
 endmodule
-*/
