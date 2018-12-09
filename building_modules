@@ -257,22 +257,23 @@ module bitcount(clk_128, in, bytcntrl, reset, r);
     resetreg <= reset;
   end
   
-module divider(first_in, in_star, clk, clk_128, wire1);
-  input first_in, clk, wire1;
-  output in_star, clk_128;
-  reg metaStab, timeSync, clock;
-  wire [5:0]wires;
+module divider(in, in_star, clk, clk_128, wire1);
+  input in, clk, wire1;
+  output clk_128;
+  output reg in_star;
+  reg metaStab, timeSync;
+  wire [4:0]wires;
   wire [6:0]outBits;
-  assign in_star = clock;
-  not(wires[0], first_in);
-  and(wires[1], wires[0], first_in);
+  not(wires[0], metaStab);
+  and(wires[1], wires[0], timeSync);
   and(wires[2], wires[1], wire1); //resets counter
   count7 counter(clk, wires[2], outBits);
   assign clk_128 = outBits[6];
   always @(posedge clk)
     begin
+	  metaStab <= in;
       timeSync <= metaStab;
-      metaStab <= first_in;
-      clock <= timeSync;
+      in_star <= timeSync;
     end
+  //assign in_star = clock;
 endmodule
