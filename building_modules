@@ -242,20 +242,19 @@ endmodule
 module bitcount(clk_128, in, bytcntrl, reset, r);
   input wire in, clk_128, r;
   output wire bytcntrl, reset;
+  reg resetreg;
   wire [3:0] cnt;
-  reg bitreg, resetreg;
-  wire bitregin;
   
-  assign reset = (cnt[3]|bitreg)|r;
-  assign bytcntrl = (~bitregin & bitreg);
+  assign reset = (cnt[3]&cnt[0])|bytcntrl|r;
   
-  mux muxie(1'b0, in, reset, bitregin);
+  mux muxie(1'b0, in, reset, bytcntrl);
   count4 countee(clk_128, resetreg, cnt);
   
   always@(posedge clk_128) begin
-    bitreg <= bitregin;  
-    resetreg <= reset;
+  	resetreg <= reset;  
   end
+    
+endmodule
   
 module divider(in, in_star, clk, clk_128, wire1);
   input in, clk, wire1;
