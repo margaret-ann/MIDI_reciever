@@ -1,3 +1,80 @@
+
+
+module Lab_4( 	
+		in,
+		clk,
+		LED_out,
+		rst_n
+			);	
+/*
+input clk, in, wire1;
+input rst_n;
+output [7:0] LED_out;
+output [3:0] outBits;
+output clk_128, in_star;
+reg[20:0] cnt;
+wire[20:0] cnt_nxt;
+assign LED_out[7:4] = cnt[20:17]; //count div by 128k
+assign LED_out[3:0] = cnt[6:3];   //count div by 8
+assign cnt_nxt = cnt + 1'b1;
+//wire clk_128, in_star;
+//count4 countee(clk, rst_n, outBits);
+divider div(in, in_star, clk, clk_128, wire1);
+
+always @(posedge clk) begin
+	if (!rst_n) begin
+		cnt <= 21'b0;
+	end
+	else begin
+		cnt <= cnt_nxt;
+	end
+end*/
+
+//OUR CODE >>
+//module device(in, clk, led, r);
+
+  input wire in, clk, rst_n;
+  output reg [7:0] LED_out;
+  wire [6:0] led, preled;
+  wire clk_128, wire1, in_star, bytcntrl, regcntrl, regmuxin, ledcntrl;
+  
+  divider div(in, in_star, clk, clk_128, wire1, rst_n);
+  bitcount b(clk_128, in_star, bytcntrl, wire1, rst_n); //bitcount(clk_128, in, bytcntrl, reset, r)
+  bytecount B(clk_128, bytcntrl, regcntrl, ledcntrl, rst_n); //bytecount(clk_128, in, regcntrl, ledcntrl, r)
+  assign regmuxin = regcntrl|wire1;
+  shiftReg s(preled, in_star, regmuxin, clk_128, rst_n); //shiftReg(dataOut, dataIn, muxIn, clk)
+  mux7 m(7'b0000000, preled, ledcntrl, led); //mux7 (a(0), b(1), s, o)
+  
+  
+  always @(posedge clk) begin
+	if(!rst_n)
+		LED_out[7:0] <= 8'b00000000;
+	else begin
+	LED_out[7] <= 0;
+	//assign LED_out[0] = in;
+
+	LED_out[6:0] <= led[6:0];
+	end
+	end
+// << OURCODE
+
+endmodule
+
+//code for D Flip Flop with enable
+module dff_v2(data, clk, reset, dataOut);
+
+  input data, clk, reset;
+  output reg dataOut;
+  
+  always @(posedge clk, posedge reset) begin
+    if(reset) //mux 0 = reset
+      dataOut <= 1'b0;
+  	else //mux 1 = pass data to dff 
+      dataOut <= data;
+    end
+      
+endmodule
+
 //THREE BIT COUNTER
 module count3(clk, reset, outBits);
 
@@ -8,18 +85,19 @@ module count3(clk, reset, outBits);
    
   //bring in some modules
   //not(clk, clk);
-  dff DFF(dataWire[0], clk, reset, outBits[0]);
-  //first FF, directly clked
-  not(dataWire[0], outBits[0]); //set input to ~Q
   
-  genvar i;
-  for(i=1; i<n; i=i+1) begin
-    dff DFF(dataWire[i], ~outBits[i-1], reset, outBits[i]);
-    //build subsequent FFs
-    not(dataWire[i], outBits[i]);
-  end
+	//First FF, directly clocked
+	dff_v2 DFF0(dataWire[0], clk, reset, outBits[0]);
+	not(dataWire[0], outBits[0]); //set input to ~Q
+  
+	dff_v2 DFF1(dataWire[1], ~outBits[0], reset, outBits[1]);
+	not(dataWire[1], outBits[1]);
+	
+	dff_v2 DFF2(dataWire[2], ~outBits[1], reset, outBits[2]);
+	not(dataWire[2], outBits[2]);
   
 endmodule
+
 
 //FOUR BIT COUNTER
 module count4(clk, reset, outBits);
@@ -30,19 +108,22 @@ module count4(clk, reset, outBits);
   wire [n-1:0] dataWire;
    
   //bring in some modules
-  //not(clk, clk);
-  dff DFF(dataWire[0], clk, reset, outBits[0]);
-  //first FF, directly clked
-  not(dataWire[0], outBits[0]); //set input to ~Q
   
-  genvar i;
-  for(i=1; i<n; i=i+1) begin
-    dff DFF(dataWire[i], ~outBits[i-1], reset, outBits[i]);
-    //build subsequent FFs
-    not(dataWire[i], outBits[i]);
-  end
+	//First FF, directly clocked
+	dff_v2 DFF0(dataWire[0], clk, reset, outBits[0]);
+	not(dataWire[0], outBits[0]); //set input to ~Q
   
+	dff_v2 DFF1(dataWire[1], ~outBits[0], reset, outBits[1]);
+	not(dataWire[1], outBits[1]);
+	
+	dff_v2 DFF2(dataWire[2], ~outBits[1], reset, outBits[2]);
+	not(dataWire[2], outBits[2]);
+	
+	dff_v2 DFF3(dataWire[3], ~outBits[2], reset, outBits[3]);
+	not(dataWire[3], outBits[3]);
+
 endmodule
+
 
 //SEVEN BIT COUNTER
 module count7(clk, reset, outBits);
@@ -53,72 +134,54 @@ module count7(clk, reset, outBits);
   wire [n-1:0] dataWire;
    
   //bring in some modules
-  //not(clk, clk);
-  dff DFF(dataWire[0], clk, reset, outBits[0]);
-  //first FF, directly clked
-  not(dataWire[0], outBits[0]); //set input to ~Q
   
-  genvar i;
-  for(i=1; i<n; i=i+1) begin
-    dff DFF(dataWire[i], ~outBits[i-1], reset, outBits[i]);
-    //build subsequent FFs
-    not(dataWire[i], outBits[i]);
-  end
+	//First FF, directly clocked
+	dff_v2 DFF0(dataWire[0], clk, reset, outBits[0]);
+	not(dataWire[0], outBits[0]); //set input to ~Q
   
+	dff_v2 DFF1(dataWire[1], ~outBits[0], reset, outBits[1]);
+	not(dataWire[1], outBits[1]);
+	
+	dff_v2 DFF2(dataWire[2], ~outBits[1], reset, outBits[2]);
+	not(dataWire[2], outBits[2]);
+	
+	dff_v2 DFF3(dataWire[3], ~outBits[2], reset, outBits[3]);
+	not(dataWire[3], outBits[3]);
+	
+	dff_v2 DFF4(dataWire[4], ~outBits[3], reset, outBits[4]);
+	not(dataWire[4], outBits[4]);
+	
+	dff_v2 DFF5(dataWire[5], ~outBits[4], reset, outBits[5]);
+	not(dataWire[5], outBits[5]);
+	
+	dff_v2 DFF6(dataWire[6], ~outBits[5], reset, outBits[6]);
+	not(dataWire[6], outBits[6]);
+
 endmodule
 
-//TEST COUNTERS
-/*module counter_test;
-
-  reg clk, data, reset;
-  wire [1:0] dataOut;
-  
-  countN count_block (clk, reset, dataOut);
-  
-  initial begin
-    
-    $dumpfile("countN.vcd");
-    $dumpvars(0,counter_test);
-
-	//fill reg with ones
-    reset=1;
-    clk=0; # 1;
-    clk=1; # 1;
-    clk=0; # 1;
-    clk=1; # 1;
-    
-    reset=0;
-    clk=0; # 1;
-    clk=1; # 1;
-    clk=0; # 1;
-    clk=1; # 1;
-    clk=0; # 1;
-    clk=1; # 1;
-    clk=0; # 1;
-    clk=1; # 1;
-    clk=0; # 1;
-    clk=1; # 1;
-    clk=0; # 1;
-    clk=1; # 1;
-    clk=0; # 1;
-    clk=1; # 1;
-    
-    $finish;
-  end
-  
-endmodule*/
-
-
 //code for 7-bit shift register
-module shiftReg(dataOut, dataIn, muxIn, clk);
+module shiftReg(dataOut, dataIn, muxIn, clk, reset);
 
-  input dataIn, muxIn, clk;
+  input dataIn, muxIn, clk, reset;
   output reg [6:0] dataOut;
+  reg stall;
   
   //functionality code
   always @(posedge muxIn, posedge clk)
-    if(muxIn) //muxIn=1: buffer DFF output to input
+    if(muxIn) begin //muxIn=1: buffer DFF output to input
       dataOut <= dataOut;
+      stall <= stall;
+      end
+    else if(!reset) begin
+      stall <= 0;
+		dataOut[0] <= 0;
+      dataOut[1] <= 0;
+      dataOut[2] <= 0;
+      dataOut[3] <= 0;
+      dataOut[4] <= 0;
+      dataOut[5] <= 0;
+      dataOut[6] <= 0;
+      end
     else begin //muxIn=0: shift
       dataOut[0] <= dataOut[1];
       dataOut[1] <= dataOut[2];
@@ -126,83 +189,20 @@ module shiftReg(dataOut, dataIn, muxIn, clk);
       dataOut[3] <= dataOut[4];
       dataOut[4] <= dataOut[5];
       dataOut[5] <= dataOut[6];
-      dataOut[6] <= dataIn;
+      dataOut[6] <= stall;
+      stall <= dataIn;
     end
   
 endmodule
 
-//Testbench used to test ShiftReg
-/*module SR_test;
-
-  reg dataIn, muxIn, clk;
-  wire [6:0] dataOut;
-  
-  shiftReg sr_block (dataOut, dataIn, muxIn, clk);
-  
-  initial begin
-    
-    $dumpfile("shiftReg.vcd");
-    $dumpvars(0,SR_test);
-
-	//fill reg with ones
-    dataIn = 1;
-    muxIn = 0;
-    clk=0; # 1;
-    clk=1; # 1;
-    clk=0; # 1;
-    clk=1; # 1;
-    clk=0; # 1;
-    clk=1; # 1;
-    clk=0; # 1;
-    clk=1; # 1;
-    clk=0; # 1;
-    clk=1; # 1;
-    clk=0; # 1;
-    clk=1; # 1;
-    clk=0; # 1;
-    clk=1; # 1;
-    
-    //shift in zero
-    dataIn=0;
-    clk=0; # 1;
-    clk=1; # 1;
-    
-    //shift in one
-    dataIn=1;
-    clk=0; # 1;
-    clk=1; # 1;
-    
-    //now buffer
-    muxIn=1;
-    clk=0; # 1;
-    clk=1; # 1;
-    clk=0; # 1;
-    
-    $finish;
-  end
-  
-endmodule*/
-
-//code for D Flip Flop with enable
-module dff(data, clk, reset, dataOut);
-
-  input data, clk, reset;
-  output reg dataOut;
-  
-  always @(posedge clk, posedge reset)
-    if(reset) //mux 0 = reset
-      dataOut <= 1'b0;
-  	else //mux 1 = pass data to dff 
-      dataOut <= data;
-      
-endmodule
-
-module mux(a, b, s, o);
+//mux1
+module mux1(a, b, s, o);
   output wire o;
   input wire a, b, s; // a for 0 and b for 1
   assign o = s ? b : a;
 endmodule
 
+//mux7
 module mux7 (a, b, s, o);
   output wire [6:0] o;
   input wire [6:0] a, b; // a for 0 and b for 1
@@ -210,44 +210,51 @@ module mux7 (a, b, s, o);
   assign o = s ? b : a;
 endmodule
 
-
-
-module device(in, clk, led, r);
-  input wire in, clk, r;
-  output wire [6:0] led, preled;
-  wire clk_128, wire1, in_star, bytcntrl, regcntrl, regmuxin, ledcntrl;
-  
-  sampler i(in, wire1, in_star, clk_128, clk, r);
-  bitcount b(clk_128, in_star, bytcntrl, wire1, r);
-  bytecount B(clk_128, bytcntrl, regcntrl, ledcntrl, r);
-  assign regmuxin = regcntrl|wire1;
-  shiftReg s(preled, in_star, regmuxin, clk_128);
-  mux7 m(7'b0000000, preled, ledcntrl, led);
-  
-endmodule
-
 //TESTED AND APPROVED
-module bytecount(clk_128, in, regcntrl, ledcntrl, r);
-  input wire in, clk_128, r;
+module bytecount(clk_128, in, regcntrl, ledcntrl, rst);
+  input wire in, clk_128, rst;
   output wire regcntrl, ledcntrl;
   wire reset;
   wire [2:0] cnt;
-  assign reset = (~cnt[0]&cnt[1]&cnt[2])|r;
+  assign reset = (~cnt[0]&cnt[1]&cnt[2])|(~rst);
   assign ledcntrl = (~cnt[2]&cnt[1]);
   assign regcntrl = (~cnt[1]|cnt[0]|cnt[2]);
   count3 countie(in, reset, cnt);
 endmodule
 
 //there may still be a bug with the bit counter being too large (change to 7 if short), check this once hook up to LEDs
-module bitcount(clk_128, in, bytcntrl, reset, r);
-  input wire in, clk_128, r;
+/*module bitcount(clk_128, in, bytcntrl, reset, rst);
+  input wire in, clk_128, rst;
+  output wire bytcntrl, reset;
+  wire [3:0] cnt;
+  reg bitreg, resetreg;
+  wire bitregin;
+  
+  assign reset = (cnt[3]|bitreg);
+  assign bytcntrl = (~bitregin & bitreg);
+  
+  mux1 muxie(1'b0, in, reset, bitregin);
+  count4 countee(clk_128, (~rst), cnt);
+  
+  always@(posedge clk_128) begin
+    bitreg <= bitregin;  
+    resetreg <= reset;
+  end
+  
+endmodule*/
+
+
+module bitcount(clk_128, in, bytcntrl, reset, rst);
+  input wire in, clk_128, rst;
   output wire bytcntrl, reset;
   reg resetreg;
   wire [3:0] cnt;
+  wire not_bytcntrl;
   
-  assign reset = (cnt[3]&cnt[0])|bytcntrl|r;
+  assign bytcntrl = ~not_bytcntrl;
+  assign reset = cnt[3]|(not_bytcntrl)|(~rst);
   
-  mux muxie(1'b0, in, reset, bytcntrl);
+  mux1 muxie(1'b0, in, reset, (not_bytcntrl));
   count4 countee(clk_128, resetreg, cnt);
   
   always@(posedge clk_128) begin
@@ -255,18 +262,21 @@ module bitcount(clk_128, in, bytcntrl, reset, r);
   end
     
 endmodule
-  
-module divider(in, in_star, clk, clk_128, wire1);
-  input in, clk, wire1;
+
+
+module divider(in, in_star, clk, clk_128, wire1, rst);
+  input in, clk, wire1, rst;
   output clk_128;
   output reg in_star;
   reg metaStab, timeSync;
+  wire count_rst;
   wire [4:0]wires;
   wire [6:0]outBits;
   not(wires[0], metaStab);
   and(wires[1], wires[0], timeSync);
   and(wires[2], wires[1], wire1); //resets counter
-  count7 counter(clk, wires[2], outBits);
+  assign count_rst = wires[2]|(~rst);
+  count7 counter(clk, count_rst, outBits);
   assign clk_128 = outBits[6];
   always @(posedge clk)
     begin
